@@ -643,7 +643,7 @@ elseif game.PlaceId == 6461766546 then
                                 game:GetService("ReplicatedStorage").RemoteEvent:FireServer("Punch", "Right")
                                 for i=1, 5 do
                                     if _G.VariablesTable[tostring(i)] then
-                                        game:GetService("ReplicatedStorage").RemoteEvent:FireServer(Player.Stats.Class.Value.. "Attack"..i, v[NpcName]:WaitForChild("HumanoidRootPart").Position)
+                                        game:GetService("ReplicatedStorage").RemoteEvent:FireServer(string.gsub(Player.Stats.Class.Value.. "Attack"..i, " ", ""), v[NpcName]:WaitForChild("HumanoidRootPart").Position)
                                     end
                                 end
                             else
