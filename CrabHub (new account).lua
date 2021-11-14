@@ -674,6 +674,26 @@ elseif game.PlaceId == 6461766546 then
         SaveSettings()
     end)
 
+    local function AutoTrainAHD()
+        while _G.VariablesTable.AutoTrainAHD do FastWait()
+            if PlayerCheck() then
+                local args = {
+                    [1] = "Train"
+                }
+                
+                game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))
+            end
+        end
+    end
+
+    spawn(AutoTrainAHD)
+
+    AutoFarm:addToggle("Auto train", _G.VariablesTable.AutoTrainAHD, function(bool)
+        _G.VariablesTable.AutoTrainAHD = bool
+        SaveSettings()
+        AutoTrainAHD()
+    end)
+
     local Settings = Main:addSection("Settings")
 
     Settings:addToggle("Move E", _G.VariablesTable["1"], function(bool)
@@ -696,24 +716,6 @@ elseif game.PlaceId == 6461766546 then
         SaveSettings()
     end)
 
-    --[[ local function AutoTransformAHD()
-        while _G.VariablesTable.AutoTransformAHD do FastWait()
-            if PlayerCheck() then
-                if Player.Character.Form.Value == "" then
-                    game:GetService("ReplicatedStorage").RemoteEvent:FireServer(Player.Stats.Class.Value.. "Attack"..6)
-                end
-            end
-        end
-    end
-
-    spawn(AutoTransformAHD)
-
-    Settings:addToggle("AutoTranform", _G.VariablesTable.AutoTransformAHD, function(bool)
-        _G.VariablesTable.AutoTransformAHD = bool
-        SaveSettings()
-        AutoTransformAHD()
-    end) ]]
-
     local function StaminaAHD()
         while _G.VariablesTable.StaminaAHD do FastWait()
             if PlayerCheck() then
@@ -732,7 +734,11 @@ elseif game.PlaceId == 6461766546 then
         StaminaAHD()
     end)
 
-    
+    local Class = Main:addSection("Class")
+
+    Class:addButton("Instant spin", function()
+        game:GetService("ReplicatedStorage").RemoteFunction:InvokeServer()
+    end)
 end
 
 
