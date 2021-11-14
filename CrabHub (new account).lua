@@ -603,6 +603,136 @@ elseif game.PlaceId == 4042427666 or game.PlaceId == 5113680396 or game.PlaceId 
         SaveSettings()
         AutoFarmAFS()
     end)
+elseif game.PlaceId == 6461766546 then
+
+    local Main = CrabHub:addPage("Main", 5012544693)
+	local AutoFarm = Main:addSection("AutoFarm")
+
+    local function QuestCheck()
+        if not Player:FindFirstChild("Quest") then
+            return false
+        end
+        if Player.Quest.Number.Value == _G.VariablesTable.QuestNumberAHD then
+            return true
+        end
+        return false
+    end
+
+    local function AutoFarmAHD()
+        while _G.VariablesTable.AutoFarmAHD do FastWait()
+            local Mod = require(game:GetService("ReplicatedStorage").Modules.Quests)
+            local NpcName = Mod[_G.VariablesTable.QuestNumberAHD]["Target"]
+            local QuestName = "Quest ".._G.VariablesTable.QuestNumberAHD
+            while not QuestCheck() do FastWait()
+                if PlayerCheck() then
+                    Player.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").StaticHumanoids[QuestName].QuestPart.CFrame
+                    local args = {
+                        [1] = "GetQuest",
+                        [2] = _G.VariablesTable.QuestNumberAHD
+                    }
+                    game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))
+                end
+            end
+            for i, v in pairs(game:GetService("Workspace").Spawns:GetChildren()) do
+                if v:FindFirstChild(NpcName) and PlayerCheck() and QuestCheck() then
+                    Player.Character.HumanoidRootPart.CFrame = v.CFrame
+                    while _G.VariablesTable.AutoFarmAHD do FastWait()
+                        if PlayerCheck() then
+                            if v:FindFirstChild(NpcName) then
+                                Player.Character.HumanoidRootPart.CFrame = v[NpcName]:WaitForChild("HumanoidRootPart").CFrame * CFrame.new(v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.LookVector * 2)
+                                game:GetService("ReplicatedStorage").RemoteEvent:FireServer("Punch", "Right")
+                                for i=1, 5 do
+                                    if _G.VariablesTable[tostring(i)] then
+                                        game:GetService("ReplicatedStorage").RemoteEvent:FireServer(Player.Stats.Class.Value.. "Attack"..i, v[NpcName]:WaitForChild("HumanoidRootPart").Position)
+                                    end
+                                end
+                            else
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    spawn(AutoFarmAHD)
+
+    AutoFarm:addToggle("Autofarm", _G.VariablesTable.AutoFarmAHD, function(bool)
+        _G.VariablesTable.AutoFarmAHD = bool
+        SaveSettings()
+        AutoFarmAHD()
+    end)
+
+    local Table = {}
+    for i=1, #require(game:GetService("ReplicatedStorage").Modules.Quests) do
+        Table[i] = i
+    end
+
+    AutoFarm:addDropdown("Quest", Table, function(chosen)
+        _G.VariablesTable.QuestNumberAHD = chosen
+        SaveSettings()
+    end)
+
+    local Settings = Main:addSection("Settings")
+
+    Settings:addToggle("Move E", _G.VariablesTable["1"], function(bool)
+        _G.VariablesTable["1"] = bool
+        SaveSettings()
+    end)
+
+    Settings:addToggle("Move R", _G.VariablesTable["2"], function(bool)
+        _G.VariablesTable["2"] = bool
+        SaveSettings()
+    end)
+
+    Settings:addToggle("Move C", _G.VariablesTable["5"], function(bool)
+        _G.VariablesTable["5"] = bool
+        SaveSettings()
+    end)
+
+    Settings:addToggle("Move F", _G.VariablesTable["3"], function(bool)
+        _G.VariablesTable["3"] = bool
+        SaveSettings()
+    end)
+
+    --[[ local function AutoTransformAHD()
+        while _G.VariablesTable.AutoTransformAHD do FastWait()
+            if PlayerCheck() then
+                if Player.Character.Form.Value == "" then
+                    game:GetService("ReplicatedStorage").RemoteEvent:FireServer(Player.Stats.Class.Value.. "Attack"..6)
+                end
+            end
+        end
+    end
+
+    spawn(AutoTransformAHD)
+
+    Settings:addToggle("AutoTranform", _G.VariablesTable.AutoTransformAHD, function(bool)
+        _G.VariablesTable.AutoTransformAHD = bool
+        SaveSettings()
+        AutoTransformAHD()
+    end) ]]
+
+    local function StaminaAHD()
+        while _G.VariablesTable.StaminaAHD do FastWait()
+            if PlayerCheck() then
+                if Player.Character:WaitForChild("CurrentStamina").Value <= 10 then
+                    Player.Character.Humanoid.Health = 0
+                end
+            end
+        end
+    end
+
+    spawn(StaminaAHD)
+
+    Settings:addToggle("Reset when low stamina", _G.VariablesTable.StaminaAHD, function(bool)
+        _G.VariablesTable.StaminaAHD = bool
+        SaveSettings()
+        StaminaAHD()
+    end)
+
+    
 end
 
 
