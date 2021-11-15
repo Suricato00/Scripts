@@ -639,7 +639,7 @@ elseif game.PlaceId == 6461766546 then
                     while _G.VariablesTable.AutoFarmAHD do FastWait()
                         if PlayerCheck() then
                             if v:FindFirstChild(NpcName) then
-                                Player.Character.HumanoidRootPart.CFrame = v[NpcName]:WaitForChild("HumanoidRootPart").CFrame * CFrame.new(v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.LookVector * 2)
+                                Player.Character.HumanoidRootPart.CFrame = CFrame.new(v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.Position - v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.LookVector * 2, v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.Position)
                                 game:GetService("ReplicatedStorage").RemoteEvent:FireServer("Punch", "Right")
                                 for i=1, 5 do
                                     if _G.VariablesTable[tostring(i)] then
