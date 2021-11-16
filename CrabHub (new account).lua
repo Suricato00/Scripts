@@ -606,7 +606,7 @@ elseif game.PlaceId == 4042427666 or game.PlaceId == 5113680396 or game.PlaceId 
 elseif game.PlaceId == 6461766546 then
 
     local Main = CrabHub:addPage("Main", 5012544693)
-	local AutoFarm = Main:addSection("AutoFarm")
+	local SingleBossFarm = Main:addSection("Single boss farm")
 
     local function QuestCheck()
         if not Player:FindFirstChild("Quest") then
@@ -658,7 +658,7 @@ elseif game.PlaceId == 6461766546 then
 
     spawn(AutoFarmAHD)
 
-    AutoFarm:addToggle("Autofarm", _G.VariablesTable.AutoFarmAHD, function(bool)
+    SingleBossFarm:addToggle("Autofarm", _G.VariablesTable.AutoFarmAHD, function(bool)
         _G.VariablesTable.AutoFarmAHD = bool
         SaveSettings()
         AutoFarmAHD()
@@ -669,7 +669,7 @@ elseif game.PlaceId == 6461766546 then
         Table[i] = i
     end
 
-    AutoFarm:addDropdown("Quest", Table, function(chosen)
+    SingleBossFarm:addDropdown(_G.VariablesTable.QuestNumberAHD or "Quest", Table, function(chosen)
         _G.VariablesTable.QuestNumberAHD = chosen
         SaveSettings()
     end)
@@ -688,13 +688,27 @@ elseif game.PlaceId == 6461766546 then
 
     spawn(AutoTrainAHD)
 
-    AutoFarm:addToggle("Auto train", _G.VariablesTable.AutoTrainAHD, function(bool)
+    local MultipleBossFarm = Main:addSection("Multiple Boss Farm")
+
+    local AllBosses = {}
+    for i,v in pairs(require(game:GetService("ReplicatedStorage").Modules.Quests)) do
+        if v.Amount == 1 then
+            AllBosses[i] = v.Target
+        end
+    end
+
+    MultipleBossFarm:addDropdown("Boss", AllBosses, function(chosen)
+        _G.VariablesTable.QuestNumberAHD = chosen
+        SaveSettings()
+    end)
+
+    local Settings = Main:addSection("Settings")
+
+    Settings:addToggle("Auto train", _G.VariablesTable.AutoTrainAHD, function(bool)
         _G.VariablesTable.AutoTrainAHD = bool
         SaveSettings()
         AutoTrainAHD()
     end)
-
-    local Settings = Main:addSection("Settings")
 
     Settings:addToggle("Move E", _G.VariablesTable["1"], function(bool)
         _G.VariablesTable["1"] = bool
@@ -734,10 +748,88 @@ elseif game.PlaceId == 6461766546 then
         StaminaAHD()
     end)
 
+    local function HealthAHD()
+        while _G.VariablesTable.HealthAHD do FastWait()
+            if PlayerCheck() then
+                local args = {
+                    [1] = "UpgradeHealth",
+                    [2] = 1
+                }
+                
+                game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))                
+            end
+        end
+    end
+
+    spawn(HealthAHD)
+
+    Settings:addToggle("Auto add health", _G.VariablesTable.HealthAHD, function(bool)
+        _G.VariablesTable.HealthAHD = bool
+        SaveSettings()
+        HealthAHD()
+    end)
+
     local Class = Main:addSection("Class")
 
     Class:addButton("Instant spin", function()
         game:GetService("ReplicatedStorage").RemoteFunction:InvokeServer()
+    end)
+
+    Class:addButton("Buy all spins", function()
+        local args = {
+            [1] = "PurchaseSpinAll"
+        }
+        
+        game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))
+    end)
+
+    local function AutoSpinAHD()
+        while _G.VariablesTable.AutoSpinAHD do FastWait()
+            if PlayerCheck() then
+                for i, v in pairs(_G.VariablesTable.ClassTableAHD) do
+                    if game:GetService("Players").LocalPlayer.Stats.Class.Value == v then
+                        return
+                    end
+                end
+                game:GetService("ReplicatedStorage").RemoteFunction:InvokeServer()
+            end
+        end
+    end
+
+    Class:addToggle("Auto Spin", _G.VariablesTable.AutoSpinAHD, function(bool)
+        _G.VariablesTable.AutoSpinAHD = bool
+        SaveSettings()
+        AutoSpinAHD()
+    end)
+
+    local ClassTable = {}
+
+    for i, v in pairs(require(game:GetService("ReplicatedStorage").Modules.Classes)["Normal"]) do
+        ClassTable[i] = v.Item
+    end
+
+    Class:addDropdown("All classes", ClassTable, function(chosen)
+        for i, v in pairs(_G.VariablesTable.ClassTableAHD) do
+            if v == chosen then
+                return
+            end
+        end
+        _G.VariablesTable.ClassTableAHD[#_G.VariablesTable.ClassTableAHD + 1] = chosen
+        SaveSettings()
+    end)
+
+    if not _G.VariablesTable.ClassTableAHD then
+        _G.VariablesTable.ClassTableAHD = {}
+    end
+
+    Class:addDropdown("Selected", _G.VariablesTable.ClassTableAHD, function(chosen)
+        for i, v in pairs(_G.VariablesTable.ClassTableAHD) do
+            if v == chosen then
+                table.remove(_G.VariablesTable.ClassTableAHD, i)
+            end
+        end
+        Class:updateDropdown("Selected", "Selected", _G.VariablesTable.ClassTableAHD)
+        SaveSettings()
     end)
 end
 
