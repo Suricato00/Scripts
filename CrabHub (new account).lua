@@ -606,24 +606,24 @@ elseif game.PlaceId == 4042427666 or game.PlaceId == 5113680396 or game.PlaceId 
 elseif game.PlaceId == 6461766546 then
 
     local Main = CrabHub:addPage("Main", 5012544693)
-	local SingleBossFarm = Main:addSection("Single boss farm")
+	local QuestFarm = Main:addSection("QuestFarm")
 
-    local function QuestCheck()
+    local function QuestCheck(QuestNumber)
         if not Player:FindFirstChild("Quest") then
             return false
         end
-        if Player.Quest.Number.Value == _G.VariablesTable.QuestNumberAHD then
+        if Player.Quest.Number.Value == QuestNumber then
             return true
         end
         return false
     end
 
-    local function AutoFarmAHD()
-        while _G.VariablesTable.AutoFarmAHD do FastWait()
+    local function QuestFarmAHD()
+        while _G.VariablesTable.QuestFarmAHD do FastWait()
             local Mod = require(game:GetService("ReplicatedStorage").Modules.Quests)
             local NpcName = Mod[_G.VariablesTable.QuestNumberAHD]["Target"]
             local QuestName = "Quest ".._G.VariablesTable.QuestNumberAHD
-            while not QuestCheck() do FastWait()
+            while not QuestCheck(_G.VariablesTable.QuestNumberAHD) do FastWait()
                 if PlayerCheck() then
                     Player.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").StaticHumanoids[QuestName].QuestPart.CFrame
                     local args = {
@@ -634,15 +634,15 @@ elseif game.PlaceId == 6461766546 then
                 end
             end
             for i, v in pairs(game:GetService("Workspace").Spawns:GetChildren()) do
-                if v:FindFirstChild(NpcName) and PlayerCheck() and QuestCheck() then
+                if v:FindFirstChild(NpcName) and PlayerCheck() and QuestCheck(_G.VariablesTable.QuestNumberAHD) then
                     Player.Character.HumanoidRootPart.CFrame = v.CFrame
-                    while _G.VariablesTable.AutoFarmAHD do FastWait()
+                    while _G.VariablesTable.QuestFarmAHD do FastWait()
                         if PlayerCheck() then
                             if v:FindFirstChild(NpcName) then
                                 Player.Character.HumanoidRootPart.CFrame = CFrame.new(v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.Position - v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.LookVector * 2, v[NpcName]:WaitForChild("HumanoidRootPart").CFrame.Position)
                                 game:GetService("ReplicatedStorage").RemoteEvent:FireServer("Punch", "Right")
                                 for i=1, 5 do
-                                    if _G.VariablesTable[tostring(i)] then
+                                    if _G.VariablesTable[tostring(i).."AHD"] then
                                         game:GetService("ReplicatedStorage").RemoteEvent:FireServer(string.gsub(Player.Stats.Class.Value.. "Attack"..i, " ", ""), v[NpcName]:WaitForChild("HumanoidRootPart").Position)
                                     end
                                 end
@@ -656,12 +656,12 @@ elseif game.PlaceId == 6461766546 then
         end
     end
 
-    spawn(AutoFarmAHD)
+    spawn(QuestFarmAHD)
 
-    SingleBossFarm:addToggle("Autofarm", _G.VariablesTable.AutoFarmAHD, function(bool)
-        _G.VariablesTable.AutoFarmAHD = bool
+    QuestFarm:addToggle("QuestFarm", _G.VariablesTable.QuestFarmAHD, function(bool)
+        _G.VariablesTable.QuestFarmAHD = bool
         SaveSettings()
-        AutoFarmAHD()
+        QuestFarmAHD()
     end)
 
     local Table = {}
@@ -669,10 +669,104 @@ elseif game.PlaceId == 6461766546 then
         Table[i] = i
     end
 
-    SingleBossFarm:addDropdown(_G.VariablesTable.QuestNumberAHD or "Quest", Table, function(chosen)
+    QuestFarm:addDropdown(_G.VariablesTable.QuestNumberAHD or "Quest", Table, function(chosen)
         _G.VariablesTable.QuestNumberAHD = chosen
         SaveSettings()
     end)
+
+    local MultipleBossFarm = Main:addSection("Multiple Boss Farm")
+
+    local function BossFarmAHD()
+        while _G.VariablesTable.BossFarmAHD do FastWait()
+            local Mod = require(game:GetService("ReplicatedStorage").Modules.Quests)
+            local QuestNumber = nil
+            local Npc = nil
+            while not QuestNumber and not Npc and _G.VariablesTable.BossFarmAHD do wait()
+                for i1, v1 in pairs(Mod) do
+                    for i, v in pairs(_G.VariablesTable.BossTableAHD) do
+                        if v1.Target == v then
+                            if game:GetService("Workspace").Spawns:FindFirstChild(v):FindFirstChild(v) then
+                                QuestNumber = i1
+                                Npc = game:GetService("Workspace").Spawns:FindFirstChild(v):FindFirstChild(v)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        
+            local QuestName = "Quest "..QuestNumber
+        
+            while not QuestCheck(QuestNumber) and _G.VariablesTable.BossFarmAHD do FastWait()
+                if PlayerCheck() then
+                    Player.Character.HumanoidRootPart.CFrame = game:GetService("Workspace").StaticHumanoids[QuestName].QuestPart.CFrame
+                    local args = {
+                        [1] = "GetQuest",
+                        [2] = QuestNumber
+                    }
+                    game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))
+                end
+            end
+        
+            while _G.VariablesTable.BossFarmAHD do FastWait()
+                if PlayerCheck() then
+                    if game:IsAncestorOf(Npc) then
+                        Player.Character.HumanoidRootPart.CFrame = CFrame.new(Npc:WaitForChild("HumanoidRootPart").CFrame.Position - Npc:WaitForChild("HumanoidRootPart").CFrame.LookVector * 2, Npc:WaitForChild("HumanoidRootPart").CFrame.Position)
+                        game:GetService("ReplicatedStorage").RemoteEvent:FireServer("Punch", "Right")
+                        for i=1, 5 do
+                            if _G.VariablesTable[tostring(i).."AHD"] then
+                                game:GetService("ReplicatedStorage").RemoteEvent:FireServer(string.gsub(Player.Stats.Class.Value.. "Attack"..i, " ", ""), Npc:WaitForChild("HumanoidRootPart").Position)
+                            end
+                        end
+                    else
+                        break
+                    end
+                end
+            end
+        end
+    end
+
+    spawn(BossFarmAHD)
+
+    MultipleBossFarm:addToggle("Bosses Farm", _G.VariablesTable.BossFarmAHD, function(bool)
+        _G.VariablesTable.BossFarmAHD = bool
+        SaveSettings()
+        BossFarmAHD()
+    end)
+
+    local AllBosses = {}
+    for i,v in pairs(require(game:GetService("ReplicatedStorage").Modules.Quests)) do
+        if v.Amount == 1 then
+            AllBosses[i] = v.Target
+        end
+    end
+
+    if not _G.VariablesTable.BossTableAHD then
+        _G.VariablesTable.BossTableAHD = {}
+    end
+
+    MultipleBossFarm:addDropdown("All bosses", AllBosses, function(chosen)
+        for i, v in pairs(_G.VariablesTable.BossTableAHD) do
+            if v == chosen then
+                return
+            end
+        end
+        _G.VariablesTable.BossTableAHD[#_G.VariablesTable.BossTableAHD + 1] = chosen
+        SaveSettings()
+    end)
+
+
+    MultipleBossFarm:addDropdown("Selected", _G.VariablesTable.BossTableAHD, function(chosen)
+        for i, v in pairs(_G.VariablesTable.BossTableAHD) do
+            if v == chosen then
+                table.remove(_G.VariablesTable.BossTableAHD, i)
+            end
+        end
+        MultipleBossFarm:updateDropdown("Selected", "Selected", _G.VariablesTable.BossTableAHD)
+        SaveSettings()
+    end)
+
+    local Settings = Main:addSection("Settings")
 
     local function AutoTrainAHD()
         while _G.VariablesTable.AutoTrainAHD do FastWait()
@@ -688,45 +782,29 @@ elseif game.PlaceId == 6461766546 then
 
     spawn(AutoTrainAHD)
 
-    local MultipleBossFarm = Main:addSection("Multiple Boss Farm")
-
-    local AllBosses = {}
-    for i,v in pairs(require(game:GetService("ReplicatedStorage").Modules.Quests)) do
-        if v.Amount == 1 then
-            AllBosses[i] = v.Target
-        end
-    end
-
-    MultipleBossFarm:addDropdown("Boss", AllBosses, function(chosen)
-        _G.VariablesTable.QuestNumberAHD = chosen
-        SaveSettings()
-    end)
-
-    local Settings = Main:addSection("Settings")
-
     Settings:addToggle("Auto train", _G.VariablesTable.AutoTrainAHD, function(bool)
         _G.VariablesTable.AutoTrainAHD = bool
         SaveSettings()
         AutoTrainAHD()
     end)
 
-    Settings:addToggle("Move E", _G.VariablesTable["1"], function(bool)
-        _G.VariablesTable["1"] = bool
+    Settings:addToggle("Move E", _G.VariablesTable["1AHD"], function(bool)
+        _G.VariablesTable["1AHD"] = bool
         SaveSettings()
     end)
 
-    Settings:addToggle("Move R", _G.VariablesTable["2"], function(bool)
-        _G.VariablesTable["2"] = bool
+    Settings:addToggle("Move R", _G.VariablesTable["2AHD"], function(bool)
+        _G.VariablesTable["2AHD"] = bool
         SaveSettings()
     end)
 
-    Settings:addToggle("Move C", _G.VariablesTable["5"], function(bool)
-        _G.VariablesTable["5"] = bool
+    Settings:addToggle("Move C", _G.VariablesTable["5AHD"], function(bool)
+        _G.VariablesTable["5AHD"] = bool
         SaveSettings()
     end)
 
-    Settings:addToggle("Move F", _G.VariablesTable["3"], function(bool)
-        _G.VariablesTable["3"] = bool
+    Settings:addToggle("Move F", _G.VariablesTable["3AHD"], function(bool)
+        _G.VariablesTable["3AHD"] = bool
         SaveSettings()
     end)
 
@@ -751,12 +829,14 @@ elseif game.PlaceId == 6461766546 then
     local function HealthAHD()
         while _G.VariablesTable.HealthAHD do FastWait()
             if PlayerCheck() then
-                local args = {
-                    [1] = "UpgradeHealth",
-                    [2] = 1
-                }
-                
-                game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))                
+                if Player.Stats.Attributes.Value > 0 then
+                    local args = {
+                        [1] = "UpgradeHealth",
+                        [2] = 1
+                    }
+                    
+                    game:GetService("ReplicatedStorage").RemoteEvent:FireServer(unpack(args))
+                end
             end
         end
     end
@@ -808,6 +888,10 @@ elseif game.PlaceId == 6461766546 then
         ClassTable[i] = v.Item
     end
 
+    if not _G.VariablesTable.ClassTableAHD then
+        _G.VariablesTable.ClassTableAHD = {}
+    end
+
     Class:addDropdown("All classes", ClassTable, function(chosen)
         for i, v in pairs(_G.VariablesTable.ClassTableAHD) do
             if v == chosen then
@@ -817,10 +901,6 @@ elseif game.PlaceId == 6461766546 then
         _G.VariablesTable.ClassTableAHD[#_G.VariablesTable.ClassTableAHD + 1] = chosen
         SaveSettings()
     end)
-
-    if not _G.VariablesTable.ClassTableAHD then
-        _G.VariablesTable.ClassTableAHD = {}
-    end
 
     Class:addDropdown("Selected", _G.VariablesTable.ClassTableAHD, function(chosen)
         for i, v in pairs(_G.VariablesTable.ClassTableAHD) do
