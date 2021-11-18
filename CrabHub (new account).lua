@@ -206,6 +206,10 @@ Config:addKeybind("Toggle GUI", Enum.KeyCode.RightControl, function()
 	CrabHub:toggle(true)
 end)
 
+Config:addButton("Delete Config File", function()
+    delfile(FileName)
+end)
+
 Credits:addButton("Suricato006#8711, Scripter", function()
 	CrabHub:Notify("Scripter", "Made all the scripts for the GUI")
 end)
@@ -222,6 +226,13 @@ Credits:addButton("Discord Server", function()
 		setclipboard("https://discord.gg/JSjpgSPs4v")
 	end)
 end)
+
+local Informations = General:addSection("Current Game Supported")
+local GameSupported = {"Dragon Ball Evolution", "One Punch simulator", "Anime Fighting Simulator", "A Hero's Destiny"}
+for i, v in pairs(GameSupported) do
+    Informations:addButton(v)
+end
+
 
 if game.PlaceId == 5324597737 or game.PlaceId == 5832683990 then
 	game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("LoadingScreen"):WaitForChild("Gui")
