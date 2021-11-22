@@ -397,12 +397,12 @@ if game.PlaceId == 5324597737 or game.PlaceId == 5832683990 then
         FormTable[i + 1] = string.lower(v.Name)
     end
 
-	AutoFarm:addDropdown("Form", FormTable, function(chosen)
+	AutoFarm:addDropdown(_G.VariablesTable.FormName or "Form", FormTable, function(chosen)
         _G.VariablesTable.FormName = chosen
         SaveSettings()
     end)
 
-	local NpcDropDown = AutoFarm:addDropdown("NpcToFarm", NpcTable, function(chosen)
+	local NpcDropDown = AutoFarm:addDropdown(_G.VariablesTable.NpcName or "NpcToFarm", NpcTable, function(chosen)
         _G.VariablesTable.NpcName = chosen
         SaveSettings()
 	end)
@@ -797,6 +797,30 @@ elseif game.PlaceId == 6461766546 then
         _G.VariablesTable.AutoTrainAHD = bool
         SaveSettings()
         AutoTrainAHD()
+    end)
+
+    local function AutoPunchAHD()
+        while _G.VariablesTable.AutoPunchAHD do FastWait()
+            local connections = getconnections(Player:GetMouse().Button1Down)
+            while not connections[4] do wait()
+            end
+            if PlayerCheck() then
+                connections[1]:Fire()
+                debug.setupvalue(connections[1].Function, 1, false)
+                debug.setupvalue(connections[1].Function, 4, false)
+            elseif not PlayerCheck() then
+                Player.CharacterAdded:Wait()
+                wait(0.5)
+            end
+        end
+    end
+
+    spawn(AutoPunchAHD)
+
+    Settings:addToggle("Auto Punch", _G.VariablesTable.AutoPunchAHD, function(bool)
+        _G.VariablesTable.AutoPunchAHD = bool
+        SaveSettings()
+        AutoPunchAHD()
     end)
 
     Settings:addToggle("Move E", _G.VariablesTable["1AHD"], function(bool)
