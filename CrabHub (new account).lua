@@ -228,7 +228,7 @@ Credits:addButton("Discord Server", function()
 end)
 
 local Informations = General:addSection("Current Game Supported")
-local GameSupported = {"Dragon Ball Evolution", "One Punch simulator", "Anime Fighting Simulator", "A Hero's Destiny"}
+local GameSupported = {"Dragon Ball Evolution", "One Punch simulator", "Anime Fighting Simulator", "A Hero's Destiny", "Anime Tappers"}
 for i, v in pairs(GameSupported) do
     Informations:addButton(v)
 end
@@ -724,9 +724,27 @@ elseif game.PlaceId == 6461766546 then
                     if game:IsAncestorOf(Npc) then
                         Player.Character.HumanoidRootPart.CFrame = CFrame.new(Npc:WaitForChild("HumanoidRootPart").CFrame.Position - Npc:WaitForChild("HumanoidRootPart").CFrame.LookVector * 2, Npc:WaitForChild("HumanoidRootPart").CFrame.Position)
                         game:GetService("ReplicatedStorage").RemoteEvent:FireServer("Punch", "Right")
+                        if Player.Stats.Class.Value == "Angel" then
+                            Player.Stats.Class.Value = "PuriPuri"
+                        end
                         for i=1, 5 do
                             if _G.VariablesTable[tostring(i).."AHD"] then
                                 game:GetService("ReplicatedStorage").RemoteEvent:FireServer(string.gsub(Player.Stats.Class.Value.. "Attack"..i, " ", ""), Npc:WaitForChild("HumanoidRootPart").Position)
+                            end
+                        end
+                        if PlayerCheck() and Player:WaitForChild("Stats"):WaitForChild("Level").Value >= 200 then
+                            while Player.Character:FindFirstChild("Form") and _G.VariablesTable.BossFarmAHD do 
+                                if PlayerCheck() then
+                                    local Mod = require(Player.PlayerGui.Cooldown.CooldownBackground.Input.LocalAttacks)
+                                    if Player.Character.Form.Value == nil or Player.Character.Form.Value == "" or Player.Character.Form.Value == " " then
+                                        Mod[string.gsub(Player.Stats.Class.Value.. "Attack"..6, " ", "")]()
+                                        wait(0.5)
+                                    else
+                                        break
+                                    end
+                                    FastWait()
+                                else break
+                                end
                             end
                         end
                     else
@@ -861,6 +879,23 @@ elseif game.PlaceId == 6461766546 then
         StaminaAHD()
     end)
 
+    local function NoSlowAHD()
+        while _G.VariablesTable.NoSlowAHD do FastWait()
+            Player:WaitForChild("Stats"):WaitForChild("CanAttack").Value = true
+            if PlayerCheck() then
+                Player.Character.HumanoidRootPart.Anchored = false
+            end
+        end
+    end
+
+    spawn(NoSlowAHD)
+
+    Settings:addToggle("NoSlow", _G.VariablesTable.NoSlowAHD, function(bool)
+        _G.VariablesTable.NoSlowAHD = bool
+        SaveSettings()
+        NoSlowAHD()
+    end)
+
     local function HealthAHD()
         while _G.VariablesTable.HealthAHD do FastWait()
             if PlayerCheck() then
@@ -945,6 +980,45 @@ elseif game.PlaceId == 6461766546 then
         end
         Class:updateDropdown("Selected", "Selected", _G.VariablesTable.ClassTableAHD)
         SaveSettings()
+    end)
+elseif game.PlaceId == 7429434108 or game.PlaceId == 7834860976 then
+    local Main = CrabHub:addPage("Main", 5012544693)
+	local AutoFarm = Main:addSection("AutoFarm")
+
+    local function AutoClickAT()
+
+        while _G.VariablesTable.AutoClickAT do FastWait()
+            game:GetService("ReplicatedStorage").Remotes.Events.Tap:FireServer()
+        end
+    end
+
+    spawn(AutoClickAT)
+
+    AutoFarm:addToggle("Auto Clicker", _G.VariablesTable.AutoClickAT, function(bool)
+        _G.VariablesTable.AutoClickAT = bool
+        SaveSettings()
+        AutoClickAT()
+    end)
+
+    local function AutoCollectYenAT()
+        while _G.VariablesTable.AutoCollectYenAT do FastWait()
+            for i, v in pairs(game:GetService("Workspace").Worlds.StarterWorld.Yen:GetChildren()) do
+                while game:IsAncestorOf(v) and PlayerCheck() and _G.VariablesTable.AutoCollectYenAT do FastWait()
+                    local Handle = v:FindFirstChild("Handle")
+                    if Handle then
+                        Player.Character.HumanoidRootPart.CFrame = Handle.CFrame
+                    end
+                end
+            end
+        end
+    end
+
+    spawn(AutoCollectYenAT)
+
+    AutoFarm:addToggle("Auto Collect Yen", _G.VariablesTable.AutoCollectYenAT, function(bool)
+        _G.VariablesTable.AutoCollectYenAT = bool
+        SaveSettings()
+        AutoCollectYenAT()
     end)
 end
 
